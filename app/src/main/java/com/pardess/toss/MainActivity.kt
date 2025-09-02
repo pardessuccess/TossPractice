@@ -12,6 +12,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
+import com.pardess.toss.feature.main.TodoNavHost
 import com.pardess.toss.feature.todo.TodoRoute
 import com.pardess.toss.ui.theme.TossTheme
 import dagger.hilt.android.AndroidEntryPoint
@@ -23,12 +24,8 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge()
         setContent {
             TossTheme {
-                Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
-                    Box(
-                        modifier = Modifier.padding(innerPadding)
-                    ) {
-                        TodoRoute()
-                    }
+                Box(modifier = Modifier.fillMaxSize()) {
+                    TodoNavHost()
                 }
             }
         }

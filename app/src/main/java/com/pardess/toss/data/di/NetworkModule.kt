@@ -24,7 +24,6 @@ object NetworkModule {
         prettyPrint = true
         isLenient = true
     }
-
     private val jsonConverterFactory = jsonRule.asConverterFactory("application/json".toMediaType())
 
     @Provides
