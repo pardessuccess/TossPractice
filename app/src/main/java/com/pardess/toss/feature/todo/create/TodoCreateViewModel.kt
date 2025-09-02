@@ -3,9 +3,8 @@ package com.pardess.toss.feature.todo.create
 import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.pardess.toss.domain.model.Todo
+import com.pardess.toss.domain.entity.Todo
 import com.pardess.toss.domain.repository.TodoRepository
-import com.pardess.toss.feature.todo.TodoSideEffect
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.MutableStateFlow

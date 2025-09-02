@@ -4,7 +4,7 @@ import com.pardess.toss.data.network.TossApiService
 import com.pardess.toss.data.toModel
 import com.pardess.toss.data.toRequest
 import com.pardess.toss.data.util.executeApiCall
-import com.pardess.toss.domain.model.Todo
+import com.pardess.toss.domain.entity.Todo
 import com.pardess.toss.domain.repository.TodoRepository
 import javax.inject.Inject
 

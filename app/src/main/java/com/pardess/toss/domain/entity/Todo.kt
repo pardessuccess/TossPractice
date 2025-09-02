@@ -1,6 +1,4 @@
-package com.pardess.toss.domain.model
-
-import kotlinx.serialization.SerialName
+package com.pardess.toss.domain.entity
 
 data class Todo(
     val userId: Int,

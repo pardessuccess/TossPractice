@@ -15,7 +15,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import com.pardess.toss.domain.model.Todo
+import com.pardess.toss.domain.entity.Todo
 import kotlinx.coroutines.flow.collectLatest
 import android.widget.Toast
 

@@ -1,9 +1,6 @@
 package com.pardess.toss.domain.repository
 
-import com.pardess.toss.data.toModel
-import com.pardess.toss.data.toRequest
-import com.pardess.toss.domain.model.Todo
-import kotlin.collections.map
+import com.pardess.toss.domain.entity.Todo
 
 interface TodoRepository {
     suspend fun getTodoList(): Result<List<Todo>>
