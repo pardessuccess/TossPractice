@@ -7,6 +7,7 @@ import androidx.lifecycle.viewModelScope
 import com.pardess.toss.domain.model.Todo
 import com.pardess.toss.domain.repository.TodoRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -27,6 +28,20 @@ class TodoDetailViewModel @Inject constructor(
 
     init {
         loadTodoDetail()
+    }
+
+    fun handleAction(action: TodoDetailAction) {
+        when(action){
+            TodoDetailAction.DeleteDetail -> {
+                deleteTodo {  }
+            }
+            TodoDetailAction.LoadDetail -> {
+                loadTodoDetail()
+            }
+            TodoDetailAction.ToggleComplete -> {
+                toggleComplete()
+            }
+        }
     }
 
     fun loadTodoDetail() {
@@ -107,3 +122,9 @@ data class TodoDetailUiState(
     val isDeleting: Boolean = false,
     val error: String? = null
 )
+
+sealed interface TodoDetailAction {
+    data object LoadDetail : TodoDetailAction
+    data object DeleteDetail : TodoDetailAction
+    data object ToggleComplete : TodoDetailAction
+}

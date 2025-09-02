@@ -5,10 +5,13 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.pardess.toss.domain.model.Todo
 import com.pardess.toss.domain.repository.TodoRepository
+import com.pardess.toss.feature.todo.TodoSideEffect
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -21,11 +24,26 @@ class TodoCreateViewModel @Inject constructor(
     private val _uiState = MutableStateFlow(TodoCreateUiState())
     val uiState: StateFlow<TodoCreateUiState> = _uiState.asStateFlow()
 
+    private val _sideEffect = Channel<TodoCreateSideEffect>()
+    val sideEffect = _sideEffect.receiveAsFlow()
+
+    fun handleAction(action: TodoCreateAction) {
+        when (action) {
+            is TodoCreateAction.CreateTodo -> {
+                createTodo()
+            }
+
+            is TodoCreateAction.UpdateTitle -> {
+                updateTitle(title = action.title)
+            }
+        }
+    }
+
     fun updateTitle(title: String) {
         _uiState.update { it.copy(title = title) }
     }
 
-    fun createTodo(onSuccess: () -> Unit) {
+    fun createTodo() {
         val title = _uiState.value.title.trim()
 
         if (title.isEmpty()) {
@@ -45,7 +63,7 @@ class TodoCreateViewModel @Inject constructor(
 
             todoRepository.createTodo(newTodo)
                 .onSuccess {
-                    onSuccess()
+                    _sideEffect.send(TodoCreateSideEffect.CreateSuccess)
                 }
                 .onFailure { exception ->
                     Log.d("TodoCreateViewModel", "createTodo: $exception")
@@ -69,3 +87,12 @@ data class TodoCreateUiState(
     val isCreating: Boolean = false,
     val error: String? = null
 )
+
+sealed interface TodoCreateAction {
+    data class UpdateTitle(val title: String) : TodoCreateAction
+    data object CreateTodo : TodoCreateAction
+}
+
+sealed interface TodoCreateSideEffect {
+    data object CreateSuccess : TodoCreateSideEffect
+}

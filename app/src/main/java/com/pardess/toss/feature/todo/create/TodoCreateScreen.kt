@@ -17,6 +17,7 @@ import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import kotlinx.coroutines.flow.collectLatest
 
 @Composable
 fun TodoCreateRoute(
@@ -26,11 +27,20 @@ fun TodoCreateRoute(
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
 
+    LaunchedEffect(viewModel) {
+        viewModel.sideEffect.collectLatest { sideEffect ->
+            when (sideEffect) {
+                TodoCreateSideEffect.CreateSuccess -> {
+                    onCreateSuccess()
+                }
+            }
+        }
+    }
+
     TodoCreateScreen(
         uiState = uiState,
         onBackClick = onBackClick,
-        onTitleChange = viewModel::updateTitle,
-        onCreateClick = { viewModel.createTodo(onCreateSuccess) },
+        handleAction = viewModel::handleAction,
         onDismissError = viewModel::clearError
     )
 }
@@ -40,8 +50,7 @@ fun TodoCreateRoute(
 fun TodoCreateScreen(
     uiState: TodoCreateUiState,
     onBackClick: () -> Unit,
-    onTitleChange: (String) -> Unit,
-    onCreateClick: () -> Unit,
+    handleAction: (TodoCreateAction) -> Unit,
     onDismissError: () -> Unit
 ) {
     val focusRequester = remember { FocusRequester() }
@@ -75,7 +84,9 @@ fun TodoCreateScreen(
             ) {
                 OutlinedTextField(
                     value = uiState.title,
-                    onValueChange = onTitleChange,
+                    onValueChange = {
+                        handleAction(TodoCreateAction.UpdateTitle(it))
+                    },
                     label = { Text("할일 제목") },
                     placeholder = { Text("무엇을 해야 하나요?") },
                     modifier = Modifier
@@ -87,7 +98,7 @@ fun TodoCreateScreen(
                     keyboardActions = KeyboardActions(
                         onDone = {
                             keyboardController?.hide()
-                            onCreateClick()
+                            handleAction(TodoCreateAction.CreateTodo)
                         }
                     )
                 )
@@ -95,7 +106,7 @@ fun TodoCreateScreen(
                 Spacer(modifier = Modifier.height(24.dp))
 
                 Button(
-                    onClick = onCreateClick,
+                    onClick = { handleAction(TodoCreateAction.CreateTodo) },
                     modifier = Modifier.fillMaxWidth(),
                     enabled = !uiState.isCreating && uiState.title.isNotBlank()
                 ) {
