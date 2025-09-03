@@ -1,15 +1,20 @@
 package com.pardess.toss.feature.todo.detail
 
 import android.util.Log
+import androidx.compose.runtime.Immutable
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.pardess.toss.domain.entity.Todo
 import com.pardess.toss.domain.repository.TodoRepository
+import com.pardess.toss.feature.model.TodoUiModel
+import com.pardess.toss.feature.model.toUiModel
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -25,25 +30,34 @@ class TodoDetailViewModel @Inject constructor(
     private val _uiState = MutableStateFlow(TodoDetailUiState())
     val uiState: StateFlow<TodoDetailUiState> = _uiState.asStateFlow()
 
+    private val _sideEffect = Channel<TodoDetailSideEffect>()
+    val sideEffect = _sideEffect.receiveAsFlow()
+
     init {
         loadTodoDetail()
     }
 
     fun handleAction(action: TodoDetailAction) {
-        when(action){
+        when (action) {
             TodoDetailAction.DeleteDetail -> {
-                deleteTodo {  }
+                deleteTodo()
             }
+
             TodoDetailAction.LoadDetail -> {
                 loadTodoDetail()
             }
+
             TodoDetailAction.ToggleComplete -> {
                 toggleComplete()
+            }
+
+            TodoDetailAction.ClearError -> {
+                clearError()
             }
         }
     }
 
-    fun loadTodoDetail() {
+    private fun loadTodoDetail() {
         viewModelScope.launch {
             _uiState.update { it.copy(isLoading = true) }
 
@@ -51,7 +65,7 @@ class TodoDetailViewModel @Inject constructor(
                 .onSuccess { todo ->
                     _uiState.update {
                         it.copy(
-                            todo = todo,
+                            todo = todo.toUiModel(),
                             isLoading = false,
                             error = null
                         )
@@ -69,34 +83,45 @@ class TodoDetailViewModel @Inject constructor(
         }
     }
 
-    fun toggleComplete() {
-        val currentTodo = _uiState.value.todo ?: return
-
+    private fun toggleComplete() {
         viewModelScope.launch {
-            val updatedTodo = currentTodo.copy(completed = !currentTodo.completed)
+            val currentTodoUiModel = _uiState.value.todo ?: return@launch
+            todoRepository.getTodoById(currentTodoUiModel.id)
+                .onSuccess { originalTodo ->
+                    val updatedTodo = originalTodo.copy(completed = !originalTodo.completed)
 
-            todoRepository.updateTodo(updatedTodo)
-                .onSuccess {
-                    _uiState.update { currentState ->
-                        currentState.copy(todo = updatedTodo)
-                    }
+                    todoRepository.updateTodo(updatedTodo)
+                        .onSuccess {
+                            // UI 상태는 TodoUiModel로 업데이트
+                            _uiState.update { currentState ->
+                                currentState.copy(
+                                    todo = currentTodoUiModel.copy(completed = updatedTodo.completed)
+                                )
+                            }
+                        }
+                        .onFailure { exception ->
+                            Log.d("TodoDetailViewModel", "toggleComplete: $exception")
+                            _uiState.update {
+                                it.copy(error = exception.message ?: "할일 업데이트에 실패했습니다")
+                            }
+                        }
                 }
                 .onFailure { exception ->
-                    Log.d("TodoDetailViewModel", "toggleComplete: $exception")
+                    Log.d("TodoDetailViewModel", "getTodoById failed: $exception")
                     _uiState.update {
-                        it.copy(error = exception.message ?: "할일 업데이트에 실패했습니다")
+                        it.copy(error = "할일 정보를 가져오는데 실패했습니다")
                     }
                 }
         }
     }
 
-    fun deleteTodo(onSuccess: () -> Unit) {
+    private fun deleteTodo() {
         viewModelScope.launch {
             _uiState.update { it.copy(isDeleting = true) }
 
             todoRepository.deleteTodo(todoId)
                 .onSuccess {
-                    onSuccess()
+                    _sideEffect.send(TodoDetailSideEffect.DeleteSuccess)
                 }
                 .onFailure { exception ->
                     Log.d("TodoDetailViewModel", "deleteTodo: $exception")
@@ -110,13 +135,14 @@ class TodoDetailViewModel @Inject constructor(
         }
     }
 
-    fun clearError() {
+    private fun clearError() {
         _uiState.update { it.copy(error = null) }
     }
 }
 
+@Immutable
 data class TodoDetailUiState(
-    val todo: Todo? = null,
+    val todo: TodoUiModel? = null,
     val isLoading: Boolean = false,
     val isDeleting: Boolean = false,
     val error: String? = null
@@ -126,4 +152,9 @@ sealed interface TodoDetailAction {
     data object LoadDetail : TodoDetailAction
     data object DeleteDetail : TodoDetailAction
     data object ToggleComplete : TodoDetailAction
+    data object ClearError: TodoDetailAction
+}
+
+sealed interface TodoDetailSideEffect {
+    data object DeleteSuccess : TodoDetailSideEffect
 }

@@ -13,6 +13,8 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.pardess.toss.domain.entity.Todo
+import com.pardess.toss.feature.model.TodoUiModel
+import kotlinx.coroutines.flow.collectLatest
 
 @Composable
 fun TodoDetailRoute(
@@ -22,13 +24,18 @@ fun TodoDetailRoute(
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
 
+    LaunchedEffect(viewModel) {
+        viewModel.sideEffect.collectLatest { sideEffect ->
+            when (sideEffect) {
+                TodoDetailSideEffect.DeleteSuccess -> onDeleteSuccess()
+            }
+        }
+    }
+
     TodoDetailScreen(
         uiState = uiState,
         onBackClick = onBackClick,
-        onToggleComplete = viewModel::toggleComplete,
-        onDelete = { viewModel.deleteTodo(onDeleteSuccess) },
-        onRetry = viewModel::loadTodoDetail,
-        onDismissError = viewModel::clearError
+        onAction = viewModel::handleAction,
     )
 }
 
@@ -36,11 +43,8 @@ fun TodoDetailRoute(
 @Composable
 fun TodoDetailScreen(
     uiState: TodoDetailUiState,
+    onAction: (TodoDetailAction) -> Unit,
     onBackClick: () -> Unit,
-    onToggleComplete: () -> Unit,
-    onDelete: () -> Unit,
-    onRetry: () -> Unit,
-    onDismissError: () -> Unit
 ) {
     Scaffold(
         topBar = {
@@ -53,7 +57,7 @@ fun TodoDetailScreen(
                 },
                 actions = {
                     if (uiState.todo != null && !uiState.isDeleting) {
-                        IconButton(onClick = onDelete) {
+                        IconButton(onClick = { onAction(TodoDetailAction.DeleteDetail) }) {
                             Icon(
                                 Icons.Default.Delete,
                                 contentDescription = "삭제",
@@ -80,7 +84,7 @@ fun TodoDetailScreen(
                 uiState.todo != null -> {
                     TodoDetailContent(
                         todo = uiState.todo,
-                        onToggleComplete = onToggleComplete,
+                        onToggleComplete = { onAction(TodoDetailAction.ToggleComplete) },
                         isDeleting = uiState.isDeleting
                     )
                 }
@@ -91,12 +95,12 @@ fun TodoDetailScreen(
                 Snackbar(
                     modifier = Modifier.align(Alignment.BottomCenter),
                     action = {
-                        TextButton(onClick = onRetry) {
+                        TextButton(onClick = { onAction(TodoDetailAction.LoadDetail) }) {
                             Text("다시 시도")
                         }
                     },
                     dismissAction = {
-                        TextButton(onClick = onDismissError) {
+                        TextButton(onClick = { onAction(TodoDetailAction.ClearError) }) {
                             Text("닫기")
                         }
                     }
@@ -122,7 +126,7 @@ fun TodoDetailScreen(
 
 @Composable
 fun TodoDetailContent(
-    todo: Todo,
+    todo: TodoUiModel,
     onToggleComplete: () -> Unit,
     isDeleting: Boolean
 ) {

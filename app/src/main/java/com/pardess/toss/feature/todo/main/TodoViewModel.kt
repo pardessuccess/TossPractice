@@ -1,10 +1,12 @@
-package com.pardess.toss.feature.todo
+package com.pardess.toss.feature.todo.main
 
 import android.util.Log
+import androidx.compose.runtime.Immutable
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.pardess.toss.domain.entity.Todo
 import com.pardess.toss.domain.repository.TodoRepository
+import com.pardess.toss.feature.model.TodoUiModel
+import com.pardess.toss.feature.model.toUiModel
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -47,7 +49,7 @@ class TodoViewModel @Inject constructor(
                 .onSuccess { todos ->
                     _uiState.update {
                         it.copy(
-                            todos = todos,
+                            todos = todos.map { it.toUiModel() },
                             isLoading = false,
                             error = null
                         )
@@ -70,26 +72,35 @@ class TodoViewModel @Inject constructor(
 
     private fun toggleTodoComplete(todoId: Int) {
         viewModelScope.launch {
-            val todo = _uiState.value.todos.find { it.id == todoId } ?: return@launch
-            val updatedTodo = todo.copy(completed = !todo.completed)
+            todoRepository.getTodoById(todoId)
+                .onSuccess { todo ->
+                    val updatedTodo = todo.copy(completed = !todo.completed)
 
-            todoRepository.updateTodo(updatedTodo)
-                .onSuccess {
-                    _uiState.update { currentState ->
-                        currentState.copy(
-                            todos = currentState.todos.map {
-                                if (it.id == todoId) updatedTodo else it
+                    todoRepository.updateTodo(updatedTodo)
+                        .onSuccess {
+                            _uiState.update { currentState ->
+                                currentState.copy(
+                                    todos = currentState.todos.map {
+                                        if (it.id == todoId) updatedTodo.toUiModel() else it
+                                    }
+                                )
                             }
-                        )
-                    }
-                    _sideEffect.send(
-                        TodoSideEffect.TodoStatusChanged(
-                            todoId = todoId,
-                            completed = updatedTodo.completed
-                        )
-                    )
-                }
-                .onFailure { exception ->
+                            _sideEffect.send(
+                                TodoSideEffect.TodoStatusChanged(
+                                    todoId = todoId,
+                                    completed = updatedTodo.completed
+                                )
+                            )
+                        }
+                        .onFailure { exception ->
+                            Log.d("TodoViewModel", "toggleTodoComplete: $exception")
+                            val errorMessage = exception.message ?: "할일 업데이트에 실패했습니다"
+                            _uiState.update {
+                                it.copy(error = errorMessage)
+                            }
+                            _sideEffect.send(TodoSideEffect.ShowError(errorMessage))
+                        }
+                }.onFailure { exception ->
                     Log.d("TodoViewModel", "toggleTodoComplete: $exception")
                     val errorMessage = exception.message ?: "할일 업데이트에 실패했습니다"
                     _uiState.update {
@@ -131,9 +142,9 @@ class TodoViewModel @Inject constructor(
     }
 }
 
-// UI State
+@Immutable
 data class TodoUiState(
-    val todos: List<Todo> = emptyList(),
+    val todos: List<TodoUiModel> = emptyList(),
     val isLoading: Boolean = false,
     val error: String? = null
 )

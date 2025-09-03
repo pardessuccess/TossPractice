@@ -7,7 +7,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
-import com.pardess.toss.feature.todo.TodoRoute
+import com.pardess.toss.feature.todo.main.TodoRoute
 import com.pardess.toss.feature.todo.create.TodoCreateRoute
 import com.pardess.toss.feature.todo.detail.TodoDetailRoute
 

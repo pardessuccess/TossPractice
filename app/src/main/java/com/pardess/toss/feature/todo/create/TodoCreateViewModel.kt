@@ -1,6 +1,7 @@
 package com.pardess.toss.feature.todo.create
 
 import android.util.Log
+import androidx.compose.runtime.Immutable
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.pardess.toss.domain.entity.Todo
@@ -35,14 +36,15 @@ class TodoCreateViewModel @Inject constructor(
             is TodoCreateAction.UpdateTitle -> {
                 updateTitle(title = action.title)
             }
+            is TodoCreateAction.ClearError -> clearError()
         }
     }
 
-    fun updateTitle(title: String) {
+    private fun updateTitle(title: String) {
         _uiState.update { it.copy(title = title) }
     }
 
-    fun createTodo() {
+    private fun createTodo() {
         val title = _uiState.value.title.trim()
 
         if (title.isEmpty()) {
@@ -76,11 +78,12 @@ class TodoCreateViewModel @Inject constructor(
         }
     }
 
-    fun clearError() {
+    private fun clearError() {
         _uiState.update { it.copy(error = null) }
     }
 }
 
+@Immutable
 data class TodoCreateUiState(
     val title: String = "",
     val isCreating: Boolean = false,
@@ -90,6 +93,7 @@ data class TodoCreateUiState(
 sealed interface TodoCreateAction {
     data class UpdateTitle(val title: String) : TodoCreateAction
     data object CreateTodo : TodoCreateAction
+    data object ClearError : TodoCreateAction
 }
 
 sealed interface TodoCreateSideEffect {

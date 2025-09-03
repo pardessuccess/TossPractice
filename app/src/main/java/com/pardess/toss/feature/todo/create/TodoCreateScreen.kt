@@ -40,8 +40,7 @@ fun TodoCreateRoute(
     TodoCreateScreen(
         uiState = uiState,
         onBackClick = onBackClick,
-        handleAction = viewModel::handleAction,
-        onDismissError = viewModel::clearError
+        onAction = viewModel::handleAction,
     )
 }
 
@@ -50,8 +49,7 @@ fun TodoCreateRoute(
 fun TodoCreateScreen(
     uiState: TodoCreateUiState,
     onBackClick: () -> Unit,
-    handleAction: (TodoCreateAction) -> Unit,
-    onDismissError: () -> Unit
+    onAction: (TodoCreateAction) -> Unit,
 ) {
     val focusRequester = remember { FocusRequester() }
     val keyboardController = LocalSoftwareKeyboardController.current
@@ -85,7 +83,7 @@ fun TodoCreateScreen(
                 OutlinedTextField(
                     value = uiState.title,
                     onValueChange = {
-                        handleAction(TodoCreateAction.UpdateTitle(it))
+                        onAction(TodoCreateAction.UpdateTitle(it))
                     },
                     label = { Text("할일 제목") },
                     placeholder = { Text("무엇을 해야 하나요?") },
@@ -98,7 +96,7 @@ fun TodoCreateScreen(
                     keyboardActions = KeyboardActions(
                         onDone = {
                             keyboardController?.hide()
-                            handleAction(TodoCreateAction.CreateTodo)
+                            onAction(TodoCreateAction.CreateTodo)
                         }
                     )
                 )
@@ -106,7 +104,7 @@ fun TodoCreateScreen(
                 Spacer(modifier = Modifier.height(24.dp))
 
                 Button(
-                    onClick = { handleAction(TodoCreateAction.CreateTodo) },
+                    onClick = { onAction(TodoCreateAction.CreateTodo) },
                     modifier = Modifier.fillMaxWidth(),
                     enabled = !uiState.isCreating && uiState.title.isNotBlank()
                 ) {
@@ -127,7 +125,7 @@ fun TodoCreateScreen(
                 Snackbar(
                     modifier = Modifier.align(Alignment.BottomCenter),
                     dismissAction = {
-                        TextButton(onClick = onDismissError) {
+                        TextButton(onClick = { onAction(TodoCreateAction.ClearError) }) {
                             Text("닫기")
                         }
                     }

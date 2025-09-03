@@ -1,4 +1,4 @@
-package com.pardess.toss.feature.todo
+package com.pardess.toss.feature.todo.main
 
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
@@ -14,10 +14,9 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
-import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import com.pardess.toss.domain.entity.Todo
 import kotlinx.coroutines.flow.collectLatest
 import android.widget.Toast
+import com.pardess.toss.feature.model.TodoUiModel
 
 @Composable
 fun TodoRoute(
@@ -25,7 +24,8 @@ fun TodoRoute(
     onCreateClick: () -> Unit,
     viewModel: TodoViewModel = hiltViewModel()
 ) {
-    val uiState by viewModel.uiState.collectAsStateWithLifecycle()
+//    val uiState by viewModel.uiState.collectAsStateWithLifecycle()
+    val uiState by viewModel.uiState.collectAsState()
     val context = LocalContext.current
 
     // Side Effect 처리
@@ -157,7 +157,7 @@ fun TodoScreen(
 
 @Composable
 fun TodoItem(
-    todo: Todo,
+    todo: TodoUiModel,
     onToggle: () -> Unit,
     onDelete: () -> Unit,
     onClick: () -> Unit
