@@ -12,8 +12,7 @@ import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import com.pardess.toss.domain.entity.Todo
-import com.pardess.toss.feature.model.TodoUiModel
+import com.pardess.toss.feature.todo.model.TodoUiModel
 import kotlinx.coroutines.flow.collectLatest
 
 @Composable

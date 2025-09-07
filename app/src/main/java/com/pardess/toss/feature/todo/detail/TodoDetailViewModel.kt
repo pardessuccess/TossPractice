@@ -5,10 +5,9 @@ import androidx.compose.runtime.Immutable
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.pardess.toss.domain.entity.Todo
 import com.pardess.toss.domain.repository.TodoRepository
-import com.pardess.toss.feature.model.TodoUiModel
-import com.pardess.toss.feature.model.toUiModel
+import com.pardess.toss.feature.todo.model.TodoUiModel
+import com.pardess.toss.feature.todo.model.toUiModel
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.MutableStateFlow

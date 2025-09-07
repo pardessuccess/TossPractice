@@ -5,9 +5,10 @@ import androidx.compose.runtime.Immutable
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.pardess.toss.domain.repository.TodoRepository
-import com.pardess.toss.feature.model.TodoUiModel
-import com.pardess.toss.feature.model.toUiModel
+import com.pardess.toss.feature.todo.model.TodoUiModel
+import com.pardess.toss.feature.todo.model.toUiModel
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -44,7 +45,6 @@ class TodoViewModel @Inject constructor(
     private fun loadTodos() {
         viewModelScope.launch {
             _uiState.update { it.copy(isLoading = true) }
-
             todoRepository.getTodoList()
                 .onSuccess { todos ->
                     _uiState.update {
@@ -75,7 +75,6 @@ class TodoViewModel @Inject constructor(
             todoRepository.getTodoById(todoId)
                 .onSuccess { todo ->
                     val updatedTodo = todo.copy(completed = !todo.completed)
-
                     todoRepository.updateTodo(updatedTodo)
                         .onSuccess {
                             _uiState.update { currentState ->

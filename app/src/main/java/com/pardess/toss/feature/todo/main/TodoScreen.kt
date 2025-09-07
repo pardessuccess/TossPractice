@@ -16,7 +16,8 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import kotlinx.coroutines.flow.collectLatest
 import android.widget.Toast
-import com.pardess.toss.feature.model.TodoUiModel
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.pardess.toss.feature.todo.model.TodoUiModel
 
 @Composable
 fun TodoRoute(
@@ -24,8 +25,8 @@ fun TodoRoute(
     onCreateClick: () -> Unit,
     viewModel: TodoViewModel = hiltViewModel()
 ) {
-//    val uiState by viewModel.uiState.collectAsStateWithLifecycle()
-    val uiState by viewModel.uiState.collectAsState()
+    val uiState by viewModel.uiState.collectAsStateWithLifecycle()
+//    val uiState by viewModel.uiState.collectAsState()
     val context = LocalContext.current
 
     // Side Effect 처리

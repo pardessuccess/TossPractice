@@ -1,4 +1,4 @@
-package com.pardess.toss.feature.model
+package com.pardess.toss.feature.todo.model
 
 import androidx.compose.runtime.Immutable
 
