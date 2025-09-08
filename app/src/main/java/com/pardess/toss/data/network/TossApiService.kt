@@ -11,6 +11,7 @@ import retrofit2.http.PUT
 import retrofit2.http.Path
 
 interface TossApiService {
+
     @GET("todos")
     suspend fun getTodoList(): Response<List<TodoResponse>>
 
