@@ -26,7 +26,6 @@ fun TodoRoute(
     viewModel: TodoViewModel = hiltViewModel()
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
-//    val uiState by viewModel.uiState.collectAsState()
     val context = LocalContext.current
 
     // Side Effect 처리

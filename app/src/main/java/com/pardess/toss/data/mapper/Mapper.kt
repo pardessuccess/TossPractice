@@ -1,4 +1,4 @@
-package com.pardess.toss.data
+package com.pardess.toss.data.mapper
 
 import com.pardess.toss.data.dto.request.TodoRequest
 import com.pardess.toss.data.dto.response.TodoResponse

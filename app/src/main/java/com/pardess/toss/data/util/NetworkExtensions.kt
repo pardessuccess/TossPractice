@@ -42,9 +42,6 @@ suspend fun <T> executeApiCall(
                 }
             )
         }
-    } catch (e: CancellationException) {
-        // 코루틴 취소는 그대로 전파
-        throw e
     } catch (e: IOException) {
         // 네트워크 연결 문제
         Result.failure(TodoException.ConnectionError(e.message))

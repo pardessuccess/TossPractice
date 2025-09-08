@@ -1,8 +1,8 @@
 package com.pardess.toss.data.repository
 
 import com.pardess.toss.data.network.TossApiService
-import com.pardess.toss.data.toModel
-import com.pardess.toss.data.toRequest
+import com.pardess.toss.data.mapper.toModel
+import com.pardess.toss.data.mapper.toRequest
 import com.pardess.toss.data.util.executeApiCall
 import com.pardess.toss.domain.entity.Todo
 import com.pardess.toss.domain.repository.TodoRepository
@@ -42,6 +42,6 @@ class TodoRepositoryImpl @Inject constructor(
     override suspend fun deleteTodo(todoId: Int): Result<Unit> {
         return executeApiCall {
             tossApiService.delete(todoId)
-        }.map { Unit }
+        }
     }
 }
