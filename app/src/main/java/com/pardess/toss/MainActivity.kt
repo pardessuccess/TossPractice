@@ -7,7 +7,7 @@ import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.ui.Modifier
-import com.pardess.toss.feature.main.TodoNavHost
+import com.pardess.toss.feature.main.TossNavHost
 import com.pardess.toss.ui.theme.TossTheme
 import dagger.hilt.android.AndroidEntryPoint
 
@@ -19,7 +19,7 @@ class MainActivity : ComponentActivity() {
         setContent {
             TossTheme {
                 Box(modifier = Modifier.fillMaxSize()) {
-                    TodoNavHost()
+                    TossNavHost()
                 }
             }
         }

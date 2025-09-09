@@ -9,7 +9,7 @@ import com.pardess.toss.domain.repository.TodoRepository
 import javax.inject.Inject
 
 
-class TodoRepositoryImpl @Inject constructor(
+class TossRepositoryImpl @Inject constructor(
     private val tossApiService: TossApiService,
 ) : TodoRepository {
 

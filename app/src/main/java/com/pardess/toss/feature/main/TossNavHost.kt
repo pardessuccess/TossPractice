@@ -12,7 +12,7 @@ import com.pardess.toss.feature.todo.create.TodoCreateRoute
 import com.pardess.toss.feature.todo.detail.TodoDetailRoute
 
 @Composable
-fun TodoNavHost(navController: NavHostController = rememberNavController()) {
+fun TossNavHost(navController: NavHostController = rememberNavController()) {
     NavHost(
         navController = navController,
         startDestination = "todo_list"

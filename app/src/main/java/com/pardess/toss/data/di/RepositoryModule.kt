@@ -1,6 +1,6 @@
 package com.pardess.toss.data.di
 
-import com.pardess.toss.data.repository.TodoRepositoryImpl
+import com.pardess.toss.data.repository.TossRepositoryImpl
 import com.pardess.toss.domain.repository.TodoRepository
 import dagger.Binds
 import dagger.Module
@@ -14,5 +14,5 @@ abstract class RepositoryModule {
 
     @Binds
     @Singleton
-    abstract fun bindTodoRepository(todoRepositoryImpl: TodoRepositoryImpl): TodoRepository
+    abstract fun bindTodoRepository(tossRepositoryImpl: TossRepositoryImpl): TodoRepository
 }
